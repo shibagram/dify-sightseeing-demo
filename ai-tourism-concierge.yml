@@ -1,0 +1,196 @@
+app:
+  description: "AI観光コンシェルジュチャットボット - 旅行者の好みに応じて最適な観光プラン・スポット・グルメを提案するAIアシスタント"
+  icon: "\U0001F3EF"
+  icon_background: '#E4FBCC'
+  mode: advanced-chat
+  name: "AI観光コンシェルジュ"
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+        - .JPG
+        - .JPEG
+        - .PNG
+        - .GIF
+        - .WEBP
+      allowed_file_types:
+        - image
+      allowed_file_upload_methods:
+        - local_file
+        - remote_url
+      enabled: true
+      image:
+        enabled: true
+        number_limits: 3
+        transfer_methods:
+          - local_file
+          - remote_url
+      number_limits: 3
+    opening_statement: |-
+      こんにちは！AI観光コンシェルジュへようこそ！
+      Welcome to the AI Tourism Concierge!
+
+      まず、ご希望の言語を選んでください：
+      Please select your preferred language:
+
+      👉 **日本語** / **English**
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+      - "日本語"
+      - "English"
+      - "京都に2泊3日で旅行したいのですが、おすすめのプランを教えてください"
+      - "I'd like to visit Kyoto for 3 days. What do you recommend?"
+    suggested_questions_after_answer:
+      enabled: true
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+      - id: '1710000000000-source-1710000000001-target'
+        source: '1710000000000'
+        sourceHandle: source
+        target: '1710000000001'
+        targetHandle: target
+      - id: '1710000000001-source-1710000000002-target'
+        source: '1710000000001'
+        sourceHandle: source
+        target: '1710000000002'
+        targetHandle: target
+    nodes:
+      - data:
+          desc: ''
+          title: "開始"
+          type: start
+          variables: []
+        id: '1710000000000'
+        position:
+          x: 80
+          y: 282
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+      - data:
+          context:
+            enabled: false
+            variable_selector: []
+          desc: ''
+          memory:
+            query_prompt_template: "{{#sys.query#}}"
+            role_prefix:
+              assistant: ''
+              user: ''
+            window:
+              enabled: true
+              size: 20
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: ''
+            provider: ''
+          prompt_template:
+            - role: system
+              text: |
+                あなたは「AI観光コンシェルジュ / AI Tourism Concierge」です。日本各地の観光に精通したプロフェッショナルな旅行アドバイザーとして、旅行者に最適な観光プランを提案してください。
+
+                ## 言語モード（最優先ルール）
+                - 会話の最初にユーザーが「日本語」または「English」を選択します。
+                - **「日本語」が選ばれた場合**: 以降すべての応答を日本語で行ってください。
+                - **「English」が選ばれた場合**: 以降すべての応答を英語で行ってください。
+                - 言語が未選択の場合は、ユーザーのメッセージの言語に合わせて応答してください。
+                - ユーザーが途中で言語を切り替えたい場合（例：「英語に切り替えて」「Switch to Japanese」）は、その指示に従ってください。
+
+                ## あなたの役割
+                - 旅行者の希望・条件をヒアリングし、最適な観光プランを提案する
+                - 地域の魅力を伝え、旅行者の満足度を最大化する
+                - 実用的で具体的なアドバイスを提供する
+
+                ## ヒアリング項目（自然な会話の中で確認）
+                以下の情報がまだわからない場合は、会話の流れの中で自然に質問してください。一度に全部聞くのではなく、1〜2個ずつ確認してください：
+                - **目的地**: どの地域・都市に行きたいか
+                - **日程**: 何泊何日か、いつ頃の旅行か
+                - **人数・構成**: 何人で行くか（カップル、家族、友人グループなど）
+                - **予算感**: 大まかな予算（交通費込み/別など）
+                - **興味・関心**: 歴史・文化、自然、グルメ、アクティビティ、ショッピングなど
+                - **食事の制限**: アレルギーやベジタリアンなどの制限
+                - **移動手段**: 車、公共交通機関、レンタカーなど
+                - **体力・移動の制約**: 高齢者同行、ベビーカー利用など
+
+                ## 回答のガイドライン
+
+                ### モデルコースを提案する場合
+                以下のフォーマットで提案してください（英語モード時は同じ構造を英語で）：
+
+                **[コース名]**
+                **1日目**
+                - 09:00 [スポット名] - [簡単な説明と見どころ]
+                - 12:30 昼食: [レストラン/エリア名] - [おすすめメニューやジャンル]
+                - 14:00 [スポット名] - [簡単な説明と見どころ]
+                - 18:00 夕食: [レストラン/エリア名]
+                - 宿泊: [エリア名や宿泊タイプの提案]
+
+                **概算費用**: 1人あたり約○○円（交通費/入場料/食事）
+                **交通手段**: [推奨する移動手段]
+                **ポイント**: [このコースの特徴やアドバイス]
+
+                ### スポット紹介の場合
+                正式名称・所在地、おすすめ時間帯・季節、所要時間、入場料・アクセス、周辺スポットとの組み合わせ
+
+                ### グルメ情報の場合
+                店名・エリア、おすすめメニューと価格帯、予約の必要性、営業時間の注意点
+
+                ### 英語モード固有のルール
+                - スポット名は英語表記に日本語を併記する（例: Kinkaku-ji (金閣寺)）
+                - 費用は円とUSDを併記する（例: ¥5,000 (~$35 USD)）
+
+                ## 重要な注意事項
+                - 季節に応じた提案をする（桜、紅葉、祭りなど）
+                - 現在の日付を考慮して、季節のイベントや旬の食材を提案に含める
+                - 混雑を避けるための時間帯アドバイスを含める
+                - バリアフリー情報が必要な場合は積極的に提供する
+                - 情報の正確性に自信がない場合は、その旨を正直に伝え、公式サイトでの確認を勧める
+                - 安全に関わる注意事項（天候、山道、海の状況など）は必ず伝える
+
+                ## 会話スタイル
+                - フレンドリーだがプロフェッショナルなトーン
+                - 押し付けがましくなく、選択肢を提示する
+                - ユーザーの反応を見て、詳細度を調整する
+                - 追加質問を促す
+          selected: true
+          title: "観光コンシェルジュ"
+          type: llm
+          variables: []
+          vision:
+            enabled: false
+        id: '1710000000001'
+        position:
+          x: 380
+          y: 282
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+      - data:
+          answer: "{{#1710000000001.text#}}"
+          desc: ''
+          title: "回答"
+          type: answer
+          variables: []
+        id: '1710000000002'
+        position:
+          x: 680
+          y: 282
+        sourcePosition: right
+        targetPosition: left
+        type: custom
